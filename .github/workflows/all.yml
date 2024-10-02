@@ -22,15 +22,19 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest,	macos-13]
 
     steps:
-      - name: Install zip on Windows
+      - name: 查看Windows系统架构
         if: matrix.os == 'windows-latest'
         run: |
-          choco install zip
           vswhere -latest -products * -requires Microsoft.Component.MSBuild -property installationPath  
           echo "Visual Studio installation path: ${{ steps.vscheck.outputs.installationPath }}"  
           cmake --version  
 
-      - name: Determine architecture
+      - name: windows安装zip
+        if: matrix.os == 'windows-latest'
+        run: |
+          choco install zip -y
+          
+      - name: 查看系统架构
         id: arch
         run: |
           if [[ "$RUNNER_OS" == "Windows" ]]; then
@@ -46,15 +50,15 @@ jobs:
         run: |  
           git clone https://github.com/aliyun/aliyun-oss-cpp-sdk.git 
 
-      - name: Build
+      - name: 开始构建
         run: |
           cd aliyun-oss-cpp-sdk
+          mkdir build  
+          cd build  
+          cmake ..  
           output_name="GitLFS_Local_Files-${{ runner.os }}-${{ env.arch }}"
           case "${{ runner.os }}" in
             Windows)  
-              mkdir build  
-              cd build  
-              cmake ..  
               $vsInstallPath = vswhere -latest -products * -requires Microsoft.Component.MSBuild -property installationPath  
               $msbuildPath = Join-Path $vsInstallPath "MSBuild\Current\Bin\MSBuild.exe"  
               cd aliyun-oss-cpp-sdk/build  
@@ -74,6 +78,11 @@ jobs:
           esac
         shell: bash
 
+      - name: ls  
+        run: |  
+          cd build
+          ls
+          
       - name: Create Release and Upload Assets
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
