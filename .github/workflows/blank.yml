@@ -1,21 +1,43 @@
-name: x64-windows Build aliyun-oss-cpp-sdk
+name: x64-windows Build aliyun-oss-cpp-sdk  
   
-on:   
-  push:   
-    branches:   
-      - main   
- 
+on:  
+  push:  
+    branches:  
+      - main  
   
-jobs:   
-  build:   
-    runs-on: windows-latest   
+jobs:  
+  build:  
+    runs-on: windows-latest  
+    steps:  
+      - name: Checkout repository  
+        uses: actions/checkout@v2  
   
-    steps:   
-
-      - name: 查看VStudio的版本
-        id: vscheck   
+      - name: 查看VStudio的版本  
+        id: vscheck  
         run: |  
           vswhere -latest -products * -requires Microsoft.Component.MSBuild -property installationPath  
           echo "Visual Studio installation path: ${{ steps.vscheck.outputs.installationPath }}"  
           cmake --version  
-          
+  
+      - name: Configure AWS credentials  
+        uses: aws-actions/configure-aws-credentials@v1  
+        with:  
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}  
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}  
+          aws-region: us-west-1  
+  
+      - name: Clone aliyun-oss-cpp-sdk  
+        run: |  
+          git clone https://github.com/aliyun/aliyun-oss-cpp-sdk.git  
+          cd aliyun-oss-cpp-sdk  
+          mkdir build  
+          cd build  
+          cmake ..  
+          msbuild ALL_BUILD.vcxproj  
+          msbuild INSTALL.vcxproj  
+  
+      - name: 上传到S3  
+        run: |  
+          cd aliyun-oss-cpp-sdk/build  
+          zip -r sdk_build.zip .  
+          aws s3 cp sdk_build.zip s3://lq-private/vcpkg/x64-windows/vcpkg_core_lambda_gamelift_s3.zip  
