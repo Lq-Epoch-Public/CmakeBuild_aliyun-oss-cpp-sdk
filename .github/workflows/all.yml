@@ -84,25 +84,29 @@ jobs:
           git fetch --tags  
           git config --global user.email "No@example.com"  
           git config --global user.name "NoName"  
-
+        
+          # Debug output to check all tags  
+          echo "All tags:"  
+          git tag -l  
         
           # Get the latest tag  
-          latest_tag=$(git describe --tags `git rev-list --tags --max-count=1` 2>/dev/null || echo "none")  
-            
+          latest_tag=$(git tag -l | sort -V | tail -n1)  
+        
           # Debug output to check the latest tag  
           echo "Latest tag found: $latest_tag"  
         
           # Check if no tags were found  
-          if [ "$latest_tag" = "none" ]; then  
+          if [ -z "$latest_tag" ]; then  
             echo "No tags found. Creating tag 0.0.1."  
             git tag -a "0.0.1" -m "Initial release"  
             git push origin --tags  
             latest_tag="0.0.1"  
           fi  
-            
+        
           # Set the output  
           echo "::set-output name=tag::$latest_tag"  
         shell: bash  
+
       - name: Create new tag  
         id: create_new_tag  
         run: |  
