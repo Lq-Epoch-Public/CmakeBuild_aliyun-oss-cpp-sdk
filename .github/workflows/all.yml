@@ -24,13 +24,12 @@ jobs:
   
     steps:  
       - name: 查看系统架构  
-        id: arch  
         run: |  
           case "${{ runner.os }}" in  
             Windows) echo "arch=amd64" >> $GITHUB_ENV ;;  
             Linux|macOS) echo "arch=$(uname -m)" >> $GITHUB_ENV ;;  
           esac  
-        shell: bash   
+        shell: bash  
   
       - name: Clone aliyun-oss-cpp-sdk  
         run: |  
