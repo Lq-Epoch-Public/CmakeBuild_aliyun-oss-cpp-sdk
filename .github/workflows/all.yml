@@ -36,7 +36,8 @@ jobs:
       - name: windows安装zip  
         if: matrix.os == 'windows-latest'  
         run: |  
-          choco install zip -y  
+          # choco install zip -y  
+          cmake --version  
   
       - name: 查看系统架构  
         id: arch  
