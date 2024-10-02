@@ -21,9 +21,12 @@ jobs:
       fail-fast: false  
       matrix:  
         # os: [ubuntu-latest, windows-latest, macos-latest, macos-13]  
-        os: [ubuntu-latest, windows-latest, macos-latest]  
+        os: [ubuntu-latest, windows-latest, macos-latest, macos-13]  
   
     steps:  
+      - name: Checkout repository  
+        uses: actions/checkout@v4 
+
       - name: 查看系统架构  
         run: |  
           if [[ "$RUNNER_OS" == "Windows" ]]; then  
@@ -57,7 +60,7 @@ jobs:
           & $msbuildPath INSTALL.vcxproj  
             
           # 压缩构建结果  
-          $output_name = "GitLFS_Local_Files-${{ runner.os }}-${{ env.arch }}"    
+          $output_name = "alibabaclouds_oss_cpp_${{ runner.os }}-${{ env.arch }}"    
           echo "Output name: $output_name"  
           Compress-Archive -Path * -DestinationPath "$output_name.zip"  
             
