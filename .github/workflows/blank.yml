@@ -2,8 +2,7 @@ name: x64-windows Build aliyun-oss-cpp-sdk
   
 on:  
   push:  
-    branches:  
-      - main  
+    # branches: [ main ] 
 
 permissions:
   contents: write
@@ -33,7 +32,7 @@ jobs:
       - name: Clone aliyun-oss-cpp-sdk  
         run: |  
           git clone https://github.com/aliyun/aliyun-oss-cpp-sdk.git  
-      
+
       - name: Cmake aliyun-oss-cpp-sdk  
         run: |  
           cd aliyun-oss-cpp-sdk  
