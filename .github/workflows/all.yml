@@ -67,13 +67,17 @@ jobs:
           cd aliyun-oss-cpp-sdk/build  
           & $msbuildPath ALL_BUILD.vcxproj  
           & $msbuildPath INSTALL.vcxproj  
+      - name: ls aliyun-oss-cpp-sdk/build
+        run: |  
+          cd aliyun-oss-cpp-sdk/build  
+          ls 
       - name: windows 压缩ZIP  
         if: matrix.os == 'windows-latest'  
         run: |  
           $output_name = "GitLFS_Local_Files-${{ runner.os }}-${{ env.arch }}"  
           cd aliyun-oss-cpp-sdk/build  
-          zip -r $output_name.zip .  
-        shell: pwsh  
+          zip -r output_name.zip ./*  
+        shell: powershell  
 
         
       - name: ls aliyun-oss-cpp-sdk/build
