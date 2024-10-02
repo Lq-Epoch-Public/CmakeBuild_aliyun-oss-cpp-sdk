@@ -25,11 +25,14 @@ jobs:
     steps:  
       - name: 查看系统架构  
         run: |  
-          case "${{ runner.os }}" in  
-            Windows) echo "arch=amd64" >> $GITHUB_ENV ;;  
-            Linux|macOS) echo "arch=$(uname -m)" >> $GITHUB_ENV ;;  
-          esac  
-        shell: bash  
+          if [[ "$RUNNER_OS" == "Windows" ]]; then  
+            echo "arch=amd64" >> $GITHUB_ENV  
+          elif [[ "$RUNNER_OS" == "Linux" ]]; then  
+            echo "arch=$(uname -m)" >> $GITHUB_ENV  
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then  
+            echo "arch=$(uname -m)" >> $GITHUB_ENV  
+          fi  
+        shell: bash   
   
       - name: Clone aliyun-oss-cpp-sdk  
         run: |  
