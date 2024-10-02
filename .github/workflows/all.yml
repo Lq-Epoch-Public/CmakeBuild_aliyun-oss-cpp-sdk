@@ -77,23 +77,30 @@ jobs:
           ls
         shell: pwsh  
 
-
-      - name: Set up Git  
-        run: |  
-          git config --global user.email "No@example.com"  
-          git config --global user.name "NoName"  
-        shell: bash  
-  
       - name: Get latest tag  
         id: get_latest_tag  
         run: |  
+          # Fetch all tags from the remote repository  
+          git fetch --tags  
+          git config --global user.email "No@example.com"  
+          git config --global user.name "NoName"  
+
+        
+          # Get the latest tag  
           latest_tag=$(git describe --tags `git rev-list --tags --max-count=1` 2>/dev/null || echo "none")  
+            
+          # Debug output to check the latest tag  
+          echo "Latest tag found: $latest_tag"  
+        
+          # Check if no tags were found  
           if [ "$latest_tag" = "none" ]; then  
             echo "No tags found. Creating tag 0.0.1."  
             git tag -a "0.0.1" -m "Initial release"  
             git push origin --tags  
             latest_tag="0.0.1"  
           fi  
+            
+          # Set the output  
           echo "::set-output name=tag::$latest_tag"  
         shell: bash  
       - name: Create new tag  
