@@ -43,8 +43,8 @@ jobs:
         if: matrix.os == 'windows-latest'  
         run: |  
           # 获取 Visual Studio 安装路径  
-          vsInstallPath=$(vswhere -latest -products * -requires Microsoft.Component.MSBuild -property installationPath)  
-          msbuildPath="$vsInstallPath/MSBuild/Current/Bin/MSBuild.exe"  
+          $vsInstallPath = vswhere -latest -products * -requires Microsoft.Component.MSBuild -property installationPath  
+          $msbuildPath = Join-Path $vsInstallPath "MSBuild\Current\Bin\MSBuild.exe"  
             
           # 进入项目目录并创建构建目录  
           cd aliyun-oss-cpp-sdk  
@@ -53,11 +53,11 @@ jobs:
             
           # 运行 CMake 和 MSBuild 进行构建  
           cmake ..  
-          & "$msbuildPath" ALL_BUILD.vcxproj  
-          & "$msbuildPath" INSTALL.vcxproj  
+          & $msbuildPath ALL_BUILD.vcxproj  
+          & $msbuildPath INSTALL.vcxproj  
             
           # 压缩构建结果  
-          output_name="alibabaclouds_oss_cpp_${{ runner.os }}_${{ env.arch }}"  
+          $output_name = "GitLFS_Local_Files-${{ runner.os }}-${{ env.arch }}"    
           echo "Output name: $output_name"  
           Compress-Archive -Path * -DestinationPath "$output_name.zip"  
             
