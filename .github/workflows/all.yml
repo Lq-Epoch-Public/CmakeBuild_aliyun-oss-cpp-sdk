@@ -19,8 +19,8 @@ jobs:
     runs-on: ${{ matrix.os }}  
     strategy:  
       matrix:  
-        # os: [ubuntu-latest, windows-latest, macos-latest, macos-13]
-        os: [windows-latest]
+        # os: [ubuntu-latest, windows-latest, macos-latest, macos-13]  
+        os: [windows-latest]  
   
     steps:  
       - name: 查看Windows系统架构  
@@ -60,11 +60,11 @@ jobs:
           output_name="GitLFS_Local_Files-${{ runner.os }}-${{ env.arch }}"  
           case "${{ runner.os }}" in  
             Windows)  
-              $vsInstallPath = vswhere -latest -products * -requires Microsoft.Component.MSBuild -property installationPath  
-              $msbuildPath = Join-Path $vsInstallPath "MSBuild\\Current\\Bin\\MSBuild.exe"  
+              vsInstallPath=$(vswhere -latest -products * -requires Microsoft.Component.MSBuild -property installationPath)  
+              msbuildPath="$vsInstallPath/MSBuild/Current/Bin/MSBuild.exe"  
               cd aliyun-oss-cpp-sdk/build  
-              & $msbuildPath ALL_BUILD.vcxproj  
-              & $msbuildPath INSTALL.vcxproj  
+              pwsh -command "& '$msbuildPath' ALL_BUILD.vcxproj"  
+              pwsh -command "& '$msbuildPath' INSTALL.vcxproj"  
               ;;  
             macOS)  
               cmake -DOPENSSL_ROOT_DIR=/usr/local/Cellar/openssl/1.0.2p \  
