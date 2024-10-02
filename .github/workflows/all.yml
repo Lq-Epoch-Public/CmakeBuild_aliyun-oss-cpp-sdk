@@ -114,7 +114,7 @@ jobs:
         with:  
           tag_name: ${{ steps.create_new_tag.outputs.new_tag }}  
           files: |  
-            aliyun-oss-cpp-sdk/build/alibabaclouds_oss_cpp_-*.zip  
-            aliyun-oss-cpp-sdk/build/alibabaclouds_oss_cpp_-*.tar.gz
+            aliyun-oss-cpp-sdk/build/alibabaclouds*.zip  
+            aliyun-oss-cpp-sdk/build/alibabaclouds*.tar.gz
         env:  
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
