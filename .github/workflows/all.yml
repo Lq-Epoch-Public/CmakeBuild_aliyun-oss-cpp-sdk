@@ -108,7 +108,7 @@ jobs:
         run: |  
           latest_tag=${{ steps.get_latest_tag.outputs.tag }}  
           if [ -z "$latest_tag" ]; then  
-            new_tag="v1.0.0"  
+            new_tag="0.0.0"  
           else  
             IFS='.' read -r -a parts <<< "${latest_tag#v}"  
             major=${parts[0]}  
