@@ -71,10 +71,8 @@ jobs:
           cd aliyun-oss-cpp-sdk/build  
           & $msbuildPath ALL_BUILD.vcxproj  
           & $msbuildPath INSTALL.vcxproj  
-      - name: ls aliyun-oss-cpp-sdk/build
-        run: |  
-          cd aliyun-oss-cpp-sdk/build  
           ls 
+
       - name: windows 压缩ZIP  
         if: matrix.os == 'windows-latest'  
         run: |  
