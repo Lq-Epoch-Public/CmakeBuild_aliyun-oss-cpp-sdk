@@ -50,39 +50,34 @@ jobs:
       - name: Clone aliyun-oss-cpp-sdk  
         run: |  
           git clone https://github.com/aliyun/aliyun-oss-cpp-sdk.git  
-  
-      - name: 开始构建  
+
+
+      - name: windows cmake  
+        if: matrix.os == 'windows-latest'  
         run: |  
           cd aliyun-oss-cpp-sdk  
           mkdir build  
           cd build  
           cmake ..  
-          output_name="GitLFS_Local_Files-${{ runner.os }}-${{ env.arch }}"  
-          case "${{ runner.os }}" in  
-            Windows)  
-              vsInstallPath=$(vswhere -latest -products * -requires Microsoft.Component.MSBuild -property installationPath)  
-              msbuildPath="$vsInstallPath/MSBuild/Current/Bin/MSBuild.exe"  
-              cd aliyun-oss-cpp-sdk/build  
-              pwsh -command "& '$msbuildPath' ALL_BUILD.vcxproj"  
-              pwsh -command "& '$msbuildPath' INSTALL.vcxproj"  
-              ;;  
-            macOS)  
-              cmake -DOPENSSL_ROOT_DIR=/usr/local/Cellar/openssl/1.0.2p \  
-                    -DOPENSSL_LIBRARIES=/usr/local/Cellar/openssl/1.0.2p/lib \  
-                    -DOPENSSL_INCLUDE_DIRS=/usr/local/Cellar/openssl/1.0.2p/include/ ..  
-              make  
-              ;;  
-            Linux)  
-              sudo apt-get install libcurl4-openssl-dev libssl-dev  
-              make  
-              sudo make install  
-              ;;  
-          esac  
-        shell: bash  
-  
-      - name: ls  
+      - name: windows build 
+        if: matrix.os == 'windows-latest'  
         run: |  
-          cd build  
+          
+          $vsInstallPath = vswhere -latest -products * -requires Microsoft.Component.MSBuild -property installationPath  
+          $msbuildPath = Join-Path $vsInstallPath "MSBuild\Current\Bin\MSBuild.exe"  
+          cd aliyun-oss-cpp-sdk/build  
+          & $msbuildPath ALL_BUILD.vcxproj  
+          & $msbuildPath INSTALL.vcxproj  
+      - name: windows 压缩ZIP
+        if: matrix.os == 'windows-latest'
+        run: | 
+          output_name="GitLFS_Local_Files-${{ runner.os }}-${{ env.arch }}" 
+          cd aliyun-oss-cpp-sdk/build  
+          zip -r output_name.zip .   
+  
+      - name: ls aliyun-oss-cpp-sdk/build
+        run: |  
+          cd aliyun-oss-cpp-sdk/build  
           ls  
   
       - name: Create Release and Upload Assets  
@@ -90,6 +85,6 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')  
         with:  
           files: |  
-            output/GitLFS_Local_Files-*.zip  
-            output/GitLFS_Local_Files-*.tar.gz  
+            aliyun-oss-cpp-sdk/build/GitLFS_Local_Files-*.zip  
+            aliyun-oss-cpp-sdk/build/GitLFS_Local_Files-*.tar.gz  
           token: ${{ secrets.GITHUB_TOKEN }}  
