@@ -76,7 +76,7 @@ jobs:
         run: |  
           $output_name = "GitLFS_Local_Files-${{ runner.os }}-${{ env.arch }}"  
           cd aliyun-oss-cpp-sdk/build  
-          zip -r $output_name.zip ./*  
+          Compress-Archive -Path * -DestinationPath $output_name.zip   
         shell: powershell  
 
         
