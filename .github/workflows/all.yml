@@ -20,61 +20,46 @@ jobs:
     strategy:  
       matrix:  
         # os: [ubuntu-latest, windows-latest, macos-latest, macos-13]  
-        os: [windows-latest]  
+        os: [ubuntu-latest, windows-latest, macos-latest, macos-13]  
   
     steps:  
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: 查看Windows系统架构  
-        if: matrix.os == 'windows-latest'  
-        run: |  
-          vswhere -latest -products * -requires Microsoft.Component.MSBuild -property installationPath  
-          echo "Visual Studio installation path: ${{ steps.vscheck.outputs.installationPath }}"  
-          cmake --version  
-  
       - name: 查看系统架构  
         id: arch  
         run: |  
-          if [[ "$RUNNER_OS" == "Windows" ]]; then  
-            echo "arch=amd64" >> $GITHUB_ENV  
-          elif [[ "$RUNNER_OS" == "Linux" ]]; then  
-            echo "arch=$(uname -m)" >> $GITHUB_ENV  
-          elif [[ "$RUNNER_OS" == "macOS" ]]; then  
-            echo "arch=$(uname -m)" >> $GITHUB_ENV  
-          fi  
-        shell: bash  
+          case "${{ runner.os }}" in  
+            Windows) echo "arch=amd64" >> $GITHUB_ENV ;;  
+            Linux|macOS) echo "arch=$(uname -m)" >> $GITHUB_ENV ;;  
+          esac  
+        shell: bash   
   
       - name: Clone aliyun-oss-cpp-sdk  
         run: |  
           git clone https://github.com/aliyun/aliyun-oss-cpp-sdk.git  
 
-
-      - name: windows cmake  
+      - name: Windows-specific steps  
         if: matrix.os == 'windows-latest'  
         run: |  
+          # 获取 Visual Studio 安装路径  
+          vsInstallPath=$(vswhere -latest -products * -requires Microsoft.Component.MSBuild -property installationPath)  
+          msbuildPath="$vsInstallPath/MSBuild/Current/Bin/MSBuild.exe"  
+            
+          # 进入项目目录并创建构建目录  
           cd aliyun-oss-cpp-sdk  
           mkdir build  
           cd build  
+            
+          # 运行 CMake 和 MSBuild 进行构建  
           cmake ..  
-      - name: windows build 
-        if: matrix.os == 'windows-latest'  
-        run: |  
-          $vsInstallPath = vswhere -latest -products * -requires Microsoft.Component.MSBuild -property installationPath  
-          $msbuildPath = Join-Path $vsInstallPath "MSBuild\Current\Bin\MSBuild.exe"  
-          cd aliyun-oss-cpp-sdk/build  
-          & $msbuildPath ALL_BUILD.vcxproj  
-          & $msbuildPath INSTALL.vcxproj  
-          ls 
-
-      - name: windows 压缩ZIP  
-        if: matrix.os == 'windows-latest'  
-        run: |  
-          $output_name = "GitLFS_Local_Files-${{ runner.os }}-${{ env.arch }}"  
+          & "$msbuildPath" ALL_BUILD.vcxproj  
+          & "$msbuildPath" INSTALL.vcxproj  
+            
+          # 压缩构建结果  
+          output_name="alibabaclouds_oss_cpp_${{ runner.os }}_${{ env.arch }}"  
           echo "Output name: $output_name"  
-          cd aliyun-oss-cpp-sdk/build  
           Compress-Archive -Path * -DestinationPath "$output_name.zip"  
-          ls
+            
+          # 列出构建目录内容  
+          ls  
         shell: pwsh  
 
       - name: Get latest tag  
@@ -85,13 +70,8 @@ jobs:
           git config --global user.email "No@example.com"  
           git config --global user.name "NoName"  
         
-          # Debug output to check all tags  
-          echo "All tags:"  
-          git tag -l  
-        
           # Get the latest tag  
           latest_tag=$(git tag -l | sort -V | tail -n1)  
-        
           # Debug output to check the latest tag  
           echo "Latest tag found: $latest_tag"  
         
@@ -111,25 +91,24 @@ jobs:
         id: create_new_tag  
         run: |  
           latest_tag=${{ steps.get_latest_tag.outputs.tag }}  
-          if [ -z "$latest_tag" ]; then  
-            new_tag="0.0.0"  
-          else  
-            IFS='.' read -r -a parts <<< "${latest_tag#v}"  
-            major=${parts[0]}  
-            minor=${parts[1]}  
-            patch=${parts[2]}  
-            new_patch=$((patch + 1))  
-            new_tag="${major}.${minor}.${new_patch}"  
-          fi  
+          IFS='.' read -r -a parts <<< "${latest_tag#v}"  
+          major=${parts[0]}  
+          minor=${parts[1]}  
+          patch=${parts[2]}  
+          new_patch=$((patch + 1))  
+          new_tag="${major}.${minor}.${new_patch}"  
           echo "::set-output name=new_tag::$new_tag"  
           echo "new_tag=$new_tag" >> $GITHUB_ENV  
         shell: bash  
+
+        
       - name: Create GitHub Release  
         id: create_release  
         uses: softprops/action-gh-release@v1  
         with:  
           tag_name: ${{ steps.create_new_tag.outputs.new_tag }}  
           files: |  
-            aliyun-oss-cpp-sdk/build/GitLFS_Local_Files-${{ runner.os }}-${{ env.arch }}.zip  
+            aliyun-oss-cpp-sdk/build/alibabaclouds_oss_cpp_-*.zip  
+            aliyun-oss-cpp-sdk/build/alibabaclouds_oss_cpp_-*.tar.gz
         env:  
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
