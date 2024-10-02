@@ -4,14 +4,18 @@ on:
   push:  
     branches:  
       - main  
+
+permissions:
+  contents: write
   
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:  
   build:  
     runs-on: windows-latest  
     steps:  
-      - name: Checkout repository  
-        uses: actions/checkout@v2  
-  
       - name: 查看VStudio的版本  
         id: vscheck  
         run: |  
