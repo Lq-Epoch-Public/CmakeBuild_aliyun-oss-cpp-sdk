@@ -1,0 +1,21 @@
+name: x64-windows Build aliyun-oss-cpp-sdk
+  
+on:   
+  push:   
+    branches:   
+      - main   
+ 
+  
+jobs:   
+  build:   
+    runs-on: windows-latest   
+  
+    steps:   
+
+      - name: 查看VStudio的版本
+        id: vscheck   
+        run: |  
+          vswhere -latest -products * -requires Microsoft.Component.MSBuild -property installationPath  
+          echo "Visual Studio installation path: ${{ steps.vscheck.outputs.installationPath }}"  
+          cmake --version  
+          
