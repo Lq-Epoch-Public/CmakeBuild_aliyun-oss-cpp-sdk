@@ -62,19 +62,20 @@ jobs:
       - name: windows build 
         if: matrix.os == 'windows-latest'  
         run: |  
-          
           $vsInstallPath = vswhere -latest -products * -requires Microsoft.Component.MSBuild -property installationPath  
           $msbuildPath = Join-Path $vsInstallPath "MSBuild\Current\Bin\MSBuild.exe"  
           cd aliyun-oss-cpp-sdk/build  
           & $msbuildPath ALL_BUILD.vcxproj  
           & $msbuildPath INSTALL.vcxproj  
-      - name: windows 压缩ZIP
-        if: matrix.os == 'windows-latest'
-        run: | 
-          output_name="GitLFS_Local_Files-${{ runner.os }}-${{ env.arch }}" 
+      - name: windows 压缩ZIP  
+        if: matrix.os == 'windows-latest'  
+        run: |  
+          $output_name = "GitLFS_Local_Files-${{ runner.os }}-${{ env.arch }}"  
           cd aliyun-oss-cpp-sdk/build  
-          zip -r output_name.zip .   
-  
+          zip -r $output_name.zip .  
+        shell: pwsh  
+
+        
       - name: ls aliyun-oss-cpp-sdk/build
         run: |  
           cd aliyun-oss-cpp-sdk/build  
