@@ -74,12 +74,13 @@ jobs:
           ls 
 
       - name: windows 压缩ZIP  
-        if: matrix.os == 'windows-latest'  
+        if: matrix.os == 'windows'  
         run: |  
           $output_name = "GitLFS_Local_Files-${{ runner.os }}-${{ env.arch }}"  
           echo "Output name: $output_name"  
           cd aliyun-oss-cpp-sdk/build  
           Compress-Archive -Path * -DestinationPath "$output_name.zip"  
+          ls
         shell: pwsh  
 
 
@@ -88,10 +89,6 @@ jobs:
           git config --global user.email "No@example.com"  
           git config --global user.name "NoName"  
         shell: bash  
-      - name: ls aliyun-oss-cpp-sdk/build
-        run: |  
-          cd aliyun-oss-cpp-sdk/build  
-          ls  
   
       - name: Get latest tag  
         id: get_latest_tag  
