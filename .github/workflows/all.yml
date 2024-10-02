@@ -75,9 +75,11 @@ jobs:
         if: matrix.os == 'windows-latest'  
         run: |  
           $output_name = "GitLFS_Local_Files-${{ runner.os }}-${{ env.arch }}"  
+          echo "Output name: $output_name"  
           cd aliyun-oss-cpp-sdk/build  
-          Compress-Archive -Path * -DestinationPath $output_name.zip   
-        shell: powershell  
+          Compress-Archive -Path * -DestinationPath "$output_name.zip"  
+        shell: pwsh  
+
 
         
       - name: ls aliyun-oss-cpp-sdk/build
