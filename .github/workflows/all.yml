@@ -51,14 +51,14 @@ jobs:
 
 
       - name: windows cmake  
-        if: matrix.os == 'windows-latest'  
+        if: matrix.os == 'windows'  
         run: |  
           cd aliyun-oss-cpp-sdk  
           mkdir build  
           cd build  
           cmake ..  
       - name: windows build 
-        if: matrix.os == 'windows-latest'  
+        if: matrix.os == 'windows'  
         run: |  
           $vsInstallPath = vswhere -latest -products * -requires Microsoft.Component.MSBuild -property installationPath  
           $msbuildPath = Join-Path $vsInstallPath "MSBuild\Current\Bin\MSBuild.exe"  
@@ -68,7 +68,7 @@ jobs:
           ls 
 
       - name: windows 压缩ZIP  
-        if: matrix.os == 'windows-latest'  
+        if: matrix.os == 'windows'  
         run: |  
           $output_name = "GitLFS_Local_Files-${{ runner.os }}-${{ env.arch }}"  
           echo "Output name: $output_name"  
