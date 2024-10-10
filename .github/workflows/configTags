@@ -56,12 +56,12 @@ jobs:
         id: create_new_tag  
         run: |  
           latest_tag=${{ steps.get_latest_tag.outputs.tag }}  
-          IFS='.' read -r -a parts <<< "v${latest_tag#v}"  
+          IFS='.' read -r -a parts <<< "${latest_tag#v}"  
           major=${parts[0]}  
           minor=${parts[1]}  
           patch=${parts[2]}  
           new_patch=$((patch + 1))  
-          new_tag="v${major}.${minor}.${new_patch}"  
+          new_tag="${major}.${minor}.${new_patch}"  
           echo "::set-output name=new_tag::$new_tag"  
           echo "new_tag=$new_tag" >> $GITHUB_ENV  
         shell: bash  
