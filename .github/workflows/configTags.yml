@@ -65,14 +65,3 @@ jobs:
         echo "::set-output name=new_tag::$new_tag"  
         echo "new_tag=$new_tag" >> $GITHUB_ENV  
       shell: bash  
-  
-    - name: Create GitHub Release  
-      id: create_release  
-      uses: softprops/action-gh-release@v1  
-      with:  
-        tag_name: ${{ steps.create_new_tag.outputs.new_tag }}  
-        files: |  
-          aliyun-oss-cpp-sdk/build/alibabaclouds*.zip  
-          aliyun-oss-cpp-sdk/build/alibabaclouds*.tar.gz  
-      env:  
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
