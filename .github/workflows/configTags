@@ -1,0 +1,79 @@
+name: Config Tags  
+on:  
+  push:  
+    branches: [ main ]  
+    # tags: ['*']  
+  pull_request:  
+    # branches: [ master ]  
+  workflow_dispatch:  #手动触发  
+  
+permissions:  
+  contents: write  
+  
+concurrency:  
+  group: ${{ github.ref }}  
+  cancel-in-progress: false  
+  
+jobs:  
+  build:  
+    runs-on: ${{ matrix.os }}  
+    strategy:  
+      fail-fast: false  
+      matrix:  
+        # os: [ubuntu-latest, windows-latest, macos-latest, macos-13]  
+        os: [ubuntu-latest]  
+  
+    steps:  
+      - name: Checkout repository  
+        uses: actions/checkout@v4 
+
+      - name: Get latest tag  
+        id: get_latest_tag  
+        run: |  
+          # Fetch all tags from the remote repository  
+          git fetch --tags  
+          git config --global user.email "No@example.com"  
+          git config --global user.name "NoName"  
+        
+          # Get the latest tag  
+          latest_tag=$(git tag -l | sort -V | tail -n1)  
+          # Debug output to check the latest tag  
+          echo "Latest tag found: $latest_tag"  
+        
+          # Check if no tags were found  
+          if [ -z "$latest_tag" ]; then  
+            echo "No tags found. Creating tag v0.0.1."  
+            git tag -a "v0.0.1" -m "Initial release"  
+            git push origin --tags  
+            latest_tag="v0.0.1"  
+          fi  
+        
+          # Set the output  
+          echo "::set-output name=tag::$latest_tag"  
+        shell: bash  
+
+      - name: Create new tag  
+        id: create_new_tag  
+        run: |  
+          latest_tag=${{ steps.get_latest_tag.outputs.tag }}  
+          IFS='.' read -r -a parts <<< "v${latest_tag#v}"  
+          major=${parts[0]}  
+          minor=${parts[1]}  
+          patch=${parts[2]}  
+          new_patch=$((patch + 1))  
+          new_tag="v${major}.${minor}.${new_patch}"  
+          echo "::set-output name=new_tag::$new_tag"  
+          echo "new_tag=$new_tag" >> $GITHUB_ENV  
+        shell: bash  
+
+        
+      - name: Create GitHub Release  
+        id: create_release  
+        uses: softprops/action-gh-release@v1  
+        with:  
+          tag_name: ${{ steps.create_new_tag.outputs.new_tag }}  
+          files: |  
+            aliyun-oss-cpp-sdk/build/alibabaclouds*.zip  
+            aliyun-oss-cpp-sdk/build/alibabaclouds*.tar.gz
+        env:  
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
